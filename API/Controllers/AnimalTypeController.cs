@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Application.Features.AnimalTypes;
 using Domain;
 using Microsoft.AspNetCore.Mvc;
