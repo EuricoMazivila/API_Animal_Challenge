@@ -12,7 +12,7 @@ builder.Services.AddControllers();
 builder.Services.AddMemoryCache();
 builder.Services.AddPersistence(builder.Configuration);
 builder.Services.AddApplication();
-builder.Services.AddWebAPI(builder.Configuration);
+builder.AddWebAPI();
 builder.Services.AddInfrastructure();
 
 builder.Services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "API", Version = "v1"}); });

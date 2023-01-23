@@ -1,5 +1,6 @@
 using Application.Features.AnimalTypes;
 using Domain;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -7,6 +8,7 @@ namespace API.Controllers
     public class AnimalTypeController : BaseController
     {
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IReadOnlyList<AnimalType>> ListAnimalType()
         {
             return await Mediator.Send(new ListAnimalType.ListAnimalTypeQuery());

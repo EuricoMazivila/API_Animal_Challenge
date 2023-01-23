@@ -3,19 +3,22 @@ using Domain;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using NLog.Web;
 using Persistence;
 
 namespace API;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddWebAPI(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddWebAPI(this WebApplicationBuilder builder)
     {
-        services.AddIdentityCore<AppUser>()
+        builder.Services.AddIdentityCore<AppUser>()
             .AddRoles<IdentityRole>().AddEntityFrameworkStores<DataContext>();
-        services.AddIdentityServices(configuration);    
+        builder.Services.AddIdentityServices(builder.Configuration);
+
+        AddLogs(builder);
         
-        return services;
+        return builder.Services;
     }
 
     private static IServiceCollection AddIdentityServices(this IServiceCollection services, IConfiguration config)
@@ -48,6 +51,15 @@ public static class DependencyInjection
             );
             
         return services;
+    }
+
+    private static void AddLogs(WebApplicationBuilder builder)
+    {
+        builder.Logging
+            .ClearProviders()
+            .SetMinimumLevel(LogLevel.Trace)
+            .AddConsole();
+        builder.Host.UseNLog();
     }
     
 }
