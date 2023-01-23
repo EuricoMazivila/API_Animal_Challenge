@@ -1,9 +1,6 @@
-using API.Extensions;
-using Application.Features.AnimalTypes;
-using Domain;
-using FluentValidation.AspNetCore;
-using MediatR;
-using Microsoft.AspNetCore.Identity;
+using API;
+using Application;
+using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Persistence;
@@ -11,25 +8,13 @@ using Persistence;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddDbContext<DataContext>(options =>
-{
-    options.UseNpgsql(builder.Configuration.GetConnectionString("PostGreSql"));
-});
-
-builder.Services.AddControllers()
-    .AddFluentValidation(s =>
-    {
-        s.RegisterValidatorsFromAssemblyContaining<ListAnimalType.ListAnimalTypeQuery>();
-        s.DisableDataAnnotationsValidation = true;
-    });
-
 builder.Services.AddControllers();
 builder.Services.AddMemoryCache();
-builder.Services.AddApplicationServices(); 
-builder.Services.AddIdentityCore<AppUser>()
-    .AddRoles<IdentityRole>().AddEntityFrameworkStores<DataContext>();
-builder.Services.AddIdentityServices(builder.Configuration);
-builder.Services.AddMediatR(typeof(ListAnimalType.ListAnimalTypeQuery).Assembly);
+builder.Services.AddPersistence(builder.Configuration);
+builder.Services.AddApplication();
+builder.Services.AddWebAPI(builder.Configuration);
+builder.Services.AddInfrastructure();
+
 builder.Services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "API", Version = "v1"}); });
 
 var app = builder.Build();
