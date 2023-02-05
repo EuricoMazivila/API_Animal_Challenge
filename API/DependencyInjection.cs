@@ -1,4 +1,6 @@
 using System.Text;
+using API.Serialization;
+using API.Serialization.Results;
 using Domain;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -14,7 +16,9 @@ public static class DependencyInjection
     {
         builder.Services.AddIdentityCore<AppUser>()
             .AddRoles<IdentityRole>().AddEntityFrameworkStores<DataContext>();
-        builder.Services.AddIdentityServices(builder.Configuration);
+        builder.Services
+            .AddIdentityServices(builder.Configuration)
+            .AddSerializationResult();
 
         AddLogs(builder);
         
@@ -60,6 +64,16 @@ public static class DependencyInjection
             .SetMinimumLevel(LogLevel.Trace)
             .AddConsole();
         builder.Host.UseNLog();
+    }
+
+    private static IServiceCollection AddSerializationResult(this IServiceCollection services)
+    {
+        services
+            .AddTransient<IResultSerializationStrategy, SerializationResultSuccess>()
+            .AddTransient<IResultSerializationStrategy, SerializationResultInternalError>()
+            .AddTransient<IResultSerializationStrategy, SerializationResultValidationError>()
+            .AddTransient<IResultSerializationStrategy, SerializationResultApplicationError>();
+        return services;
     }
     
 }

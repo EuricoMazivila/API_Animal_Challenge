@@ -1,3 +1,4 @@
+using Application.Behaviors;
 using Application.Features.AnimalTypes;
 using FluentValidation.AspNetCore;
 using MediatR;
@@ -9,6 +10,9 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequisitionValidationPipelineBehavior<,>));
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ExceptionPipelineBehavior<,>));
+        
         services.AddControllers()
             .AddFluentValidation(s =>
             {
@@ -16,6 +20,7 @@ public static class DependencyInjection
                 s.DisableDataAnnotationsValidation = true;
             });
         services.AddMediatR(typeof(ListAnimalType.ListAnimalTypeQuery).Assembly);
+        
         return services;
     }
 }

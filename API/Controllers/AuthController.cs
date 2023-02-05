@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using Application.Dtos;
 using Application.Features.Auth;
 using Microsoft.AspNetCore.Authorization;
