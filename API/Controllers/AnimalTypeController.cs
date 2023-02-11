@@ -2,7 +2,6 @@ using API.Serialization;
 using Application.Features.AnimalTypes;
 using Domain;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -17,7 +16,6 @@ namespace API.Controllers
         }
         
         [HttpGet]
-        [AllowAnonymous]
         public async Task<IActionResult> ListAnimalType(CancellationToken cancellationToken)
         {
             var result = await _sender.Send(new ListAnimalType.ListAnimalTypeQuery(), cancellationToken);
@@ -33,22 +31,25 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<AnimalType>> AddAnimalType(AddAnimalType.AddAnimalTypeCommand command)
+        public async Task<IActionResult> AddAnimalType(AddAnimalType.AddAnimalTypeCommand command)
         {
-            return await Mediator.Send(command);
+            var result = await _sender.Send(command);
+            return this.SerializeResult(result);
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<AnimalType>> UpdateAnimalType(int id, UpdateAnimalType.UpdateAnimalTypeCommand command)
+        public async Task<IActionResult> UpdateAnimalType(int id, UpdateAnimalType.UpdateAnimalTypeCommand command)
         {
             command.Id = id;
-            return await Mediator.Send(command);
+            var result = await _sender.Send(command);
+            return this.SerializeResult(result);
         }
         
         [HttpDelete("{id}")]
-        public async Task<ActionResult<AnimalType>> RemoveAnimalType(int id)
+        public async Task<IActionResult> RemoveAnimalType(int id)
         {
-            return await Mediator.Send(new DeleteAnimalType.DeleteAnimalTypeCommand {Id = id});
+            var result = await _sender.Send(new DeleteAnimalType.DeleteAnimalTypeCommand { Id = id });
+            return this.SerializeResult(result);
         } 
     }
 }

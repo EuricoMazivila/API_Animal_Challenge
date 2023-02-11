@@ -1,7 +1,6 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
+using Application.Errors;
 using Domain;
+using FluentResults;
 using MediatR;
 using Persistence;
 
@@ -9,12 +8,12 @@ namespace Application.Features.AnimalTypes
 {
     public class DeleteAnimalType
     {
-        public class DeleteAnimalTypeCommand : IRequest<AnimalType>
+        public class DeleteAnimalTypeCommand : IRequest<Result<AnimalType>>
         {
             public int Id { get; set; }
         }
         
-        public class DeleteAnimalTypeHandler : IRequestHandler<DeleteAnimalTypeCommand, AnimalType>
+        public class DeleteAnimalTypeHandler : IRequestHandler<DeleteAnimalTypeCommand, Result<AnimalType>>
         {
             private readonly DataContext _context;
 
@@ -22,21 +21,17 @@ namespace Application.Features.AnimalTypes
             {
                 _context = context;
             }
-            public async Task<AnimalType> Handle(DeleteAnimalTypeCommand request, CancellationToken cancellationToken)
+            public async Task<Result<AnimalType>> Handle(DeleteAnimalTypeCommand request, CancellationToken cancellationToken)
             {
                 var animalType = await _context.AnimalTypes.FindAsync(request.Id);
                 if (animalType is null)
-                {
-                    throw new Exception("Animal type not found");
-                }
+                    return Results.NotFoundError($"Id {request.Id} of animal type");
 
                 _context.AnimalTypes.Remove(animalType);
-                var result = await _context.SaveChangesAsync();
+                var result = await _context.SaveChangesAsync(cancellationToken);
 
                 if (result <= 0)
-                {
-                    throw new Exception("Fail to delete the animal type");
-                }
+                    return Results.InternalError("Fail to delete the animal type");
 
                 return animalType;
             }

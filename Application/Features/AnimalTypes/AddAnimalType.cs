@@ -2,7 +2,9 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Application.Errors;
 using Domain;
+using FluentResults;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +14,7 @@ namespace Application.Features.AnimalTypes
 {
     public class AddAnimalType
     {
-        public class AddAnimalTypeCommand : IRequest<AnimalType>
+        public class AddAnimalTypeCommand : IRequest<Result<AnimalType>>
         {
             public string Description { get; set; }
         }
@@ -25,7 +27,7 @@ namespace Application.Features.AnimalTypes
             }
         }
         
-        public class AddAnimalTypeHandler : IRequestHandler<AddAnimalTypeCommand, AnimalType>
+        public class AddAnimalTypeHandler : IRequestHandler<AddAnimalTypeCommand, Result<AnimalType>>
         {
             private readonly DataContext _context;
 
@@ -34,27 +36,23 @@ namespace Application.Features.AnimalTypes
                 _context = context;
             }
             
-            public async Task<AnimalType> Handle(AddAnimalTypeCommand request, CancellationToken cancellationToken)
+            public async Task<Result<AnimalType>> Handle(AddAnimalTypeCommand request, CancellationToken cancellationToken)
             {
                 var animalType = await _context.AnimalTypes
-                    .Where(x => x.Description.ToUpper() == request.Description.ToUpper()).FirstOrDefaultAsync();
+                    .Where(x => x.Description.ToUpper() == request.Description.ToUpper()).FirstOrDefaultAsync(cancellationToken);
                 if (animalType != null)
-                {
-                    throw new Exception("The animal type exist in database!");
-                }
-
+                    return Results.ConflictError($"animal type {request.Description}");
+                
                 animalType = new AnimalType
                 {
                     Description = request.Description
                 };
 
-               await _context.AnimalTypes.AddAsync(animalType);
-               var result = await _context.SaveChangesAsync();
+               await _context.AnimalTypes.AddAsync(animalType,cancellationToken);
+               var result = await _context.SaveChangesAsync(cancellationToken);
 
-               if (result <= 0)
-               {
-                   throw new Exception("Fail to add the animal type");
-               }
+                if (result <= 0)
+                    return Results.InternalError("Fail to add the animal type");
 
                return animalType;
             }

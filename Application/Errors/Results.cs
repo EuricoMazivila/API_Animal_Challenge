@@ -24,6 +24,11 @@ public static class Results
     {
         return Result.Fail(new NotFoundError($"The resource: {name} specified cannot be found"));
     }
+
+    public static Result ConflictError(string message)
+    {
+        return Result.Fail(new ConflictError($"The resource: {message} exist in database!"));
+    }
     
     public static Result ValidationError(Dictionary<string, string[]> dictionaryFieldReasons)
     {
@@ -48,5 +53,10 @@ public static class Results
     public static Result<TContent> NotFoundError<TContent>(string name)
     {
         return Result.Fail<TContent>(new NotFoundError($"The resource: {name} specified cannot be found"));
+    }
+
+    public static Result<TContent> ConflictError<TContent>(string message)
+    {
+        return Result.Fail<TContent>(new ConflictError($"The resource: {message} exist in database!"));
     }
 }
