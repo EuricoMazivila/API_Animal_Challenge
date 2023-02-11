@@ -25,10 +25,11 @@ namespace API.Controllers
         }
         
         [HttpGet("{description}")]
-        public async Task<ActionResult<AnimalType>> GetAnimalTypeByDescription(string description)
+        public async Task<IActionResult> GetAnimalTypeByDescription(string description)
         {
-            return await Mediator.Send(new GetAnimalTypeByDescription.GetAnimalTypeByDescriptionQuery
-                {Description = description});
+            var result = await _sender.Send(new GetAnimalTypeByDescription.GetAnimalTypeByDescriptionQuery
+            { Description = description });
+            return this.SerializeResult(result);    
         }
 
         [HttpPost]

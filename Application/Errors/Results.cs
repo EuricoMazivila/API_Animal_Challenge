@@ -19,6 +19,11 @@ public static class Results
         
         return Result.Fail(error);
     }
+
+    public static Result NotFoundError(string name)
+    {
+        return Result.Fail(new NotFoundError($"The resource: {name} specified cannot be found"));
+    }
     
     public static Result ValidationError(Dictionary<string, string[]> dictionaryFieldReasons)
     {
@@ -38,5 +43,10 @@ public static class Results
             error = error.CausedBy(exception);
         
         return Result.Fail<TContent>(error);
+    }
+
+    public static Result<TContent> NotFoundError<TContent>(string name)
+    {
+        return Result.Fail<TContent>(new NotFoundError($"The resource: {name} specified cannot be found"));
     }
 }

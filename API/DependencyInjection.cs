@@ -72,7 +72,9 @@ public static class DependencyInjection
             .AddTransient<IResultSerializationStrategy, SerializationResultSuccess>()
             .AddTransient<IResultSerializationStrategy, SerializationResultInternalError>()
             .AddTransient<IResultSerializationStrategy, SerializationResultValidationError>()
-            .AddTransient<IResultSerializationStrategy, SerializationResultApplicationError>();
+            .AddTransient<IResultSerializationStrategy, SerializationResultApplicationError>()
+            .AddTransient<IResultSerializationStrategy, SerializationResultNotFoundError>();
+
         return services;
     }
     
